@@ -1,10 +1,13 @@
+
+var canvas;
+var gl;
 function main() {
     /** @type {HTMLCanvasElement} */
-    const canvas = document.getElementById("glCanvas");
+    canvas = document.getElementById("glCanvas");
 
     // Initialize the GL context
     /** @type {WebGLRenderingContext} */
-    const gl = canvas.getContext("webgl");
+    gl = canvas.getContext("webgl");
 
     const vertexShaderText = `
     precision mediump float;
@@ -20,12 +23,13 @@ function main() {
 
     uniform float width;
     uniform float height;
+    uniform float radius;
 
     void main() {
-        float normalizedX = gl_FragCoord.x - width;
-        float normalizedY = gl_FragCoord.y - height;
+        float normalizedX = gl_FragCoord.x - (width / 2.0);
+        float normalizedY = gl_FragCoord.y - (height / 2.0);
 
-        if (sqrt(normalizedX * normalizedX + normalizedY * normalizedY) < 80.0) {
+        if (sqrt(normalizedX * normalizedX + normalizedY * normalizedY) < radius) {
             //transparent cutout
             gl_FragColor = vec4(1.0, 0.0, 0.0, 0.0);
         } else {
@@ -90,13 +94,39 @@ function main() {
     );
     gl.enableVertexAttribArray(positionAttribLocation);
 
-    gl.useProgram(program);
-    var widthHandle = gl.getUniformLocation(program, "width");
-    var heightHandle = gl.getUniformLocation(program, "height");
-    gl.uniform1f(widthHandle, window.innerWidth / 2);
-    gl.uniform1f(heightHandle, window.innerHeight / 2);
+    var radius = 1.0;
 
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    function render() {
+        gl.useProgram(program);
+        var widthHandle = gl.getUniformLocation(program, "width");
+        var heightHandle = gl.getUniformLocation(program, "height");
+        var radiusHandle = gl.getUniformLocation(program, "radius");
+
+        radius += 1;
+        gl.uniform1f(widthHandle, window.innerWidth);
+        gl.uniform1f(heightHandle, window.innerHeight);
+        gl.uniform1f(radiusHandle, radius);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        window.requestAnimationFrame(render);
+    }
+    window.requestAnimationFrame(render);
+
+    canvas.onmousedown = function (ev) {
+        var mx = ev.clientX, my = ev.clientY;
+        console.log(incirlce(canvas.width / 2, canvas.height / 2, mx, my, radius))
+        //console.log(mx + ' ' + my);
+    }
+
+    function incirlce(cx, cy, mx, my, r) {
+        var dist_points = (mx - cx) * (mx - cx) + (my - cy) * (my - cy);
+        r *= r;
+        if (dist_points < r) {
+            return true;
+        }
+        return false;
+    }
+
 }
 window.onload = main;
 
