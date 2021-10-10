@@ -46,17 +46,28 @@ function main() {
 
 
     //all arrays in JS is Float64 by default
-    var circle = [0, 0]
+    var circle = new Array();
     var r = 0.5
     var totalPoints = 100;
-    for (i = 0; i <= totalPoints; i++) {
+    for (i = 0; i < totalPoints; i++) {
         const angle = 2 * Math.PI * i / totalPoints;
         circle.push(
-            0 + r * Math.cos(angle)
+            (0 + r * Math.cos(angle)/(window.innerWidth/800))
         )
         circle.push(
-            0 + r * Math.sin(angle)
+            (0 + r * Math.sin(angle)/(window.innerHeight/800))
         )
+    }
+
+    var bacteria = new Array(10);
+
+    for (var i = 0; i < bacteria.length; i++) {
+        bacteria[i] = new Array(4);
+        bacteria[i][0]=0;//x
+        bacteria[i][1]=0;//y
+        bacteria[i][2]=0.1;//r
+        bacteria[i][3]= new Array();
+        updateBacteria(bacteria[i]);
     }
 
     var triangleVertexBufferObject = gl.createBuffer();
@@ -66,6 +77,7 @@ function main() {
     //gl.STATIC_DRAW means we send the data only once (the triangle vertex position
     //will not change over time)
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(circle), gl.STATIC_DRAW);
+
 
     var positionAttribLocation = gl.getAttribLocation(program, 'vertPosition');
     //var colorAttribLocation = gl.getAttribLocation(program,'vertColor');
@@ -103,11 +115,14 @@ function main() {
 
         motion[0] = x;
         motion[1] = y;
+
         gl.uniform2fv(motionUniformLocation, motion);
 
         gl.clearColor(0.5, 0.8, 0.8, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLE_FAN, 0, totalPoints + 2);
+
+
 
         //call loop function whenever a frame is ready for drawing, usually it is 60fps.
         //Also, if the tab is not focused loop function will not be called
@@ -148,6 +163,21 @@ function main() {
 
         if (event.key == 's')
             y = y - 0.005;
+    }
+}
+
+function updateBacteria(bact){
+    var totalPoints=100;
+    bact[2]+=0.01;
+    var raduis=bact[2];
+    for (i = 0; i < totalPoints*2; i+=2) {
+        const angle = 2 * Math.PI * i / totalPoints;
+        bact[3][i]=(
+            (0 + raduis * Math.cos(angle)/(window.innerWidth/800))
+        )
+        bact[3][i+1]=(
+            (0 + raduis * Math.sin(angle)/(window.innerHeight/800))
+        )
     }
 }
 
