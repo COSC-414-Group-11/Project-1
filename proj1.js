@@ -52,10 +52,10 @@ function main() {
     for (i = 0; i < totalPoints; i++) {
         const angle = 2 * Math.PI * i / totalPoints;
         circle.push(
-            (0 + r * Math.cos(angle)/(window.innerWidth/800))
+            (0 + r * Math.cos(angle) / (window.innerWidth / 800))
         )
         circle.push(
-            (0 + r * Math.sin(angle)/(window.innerHeight/800))
+            (0 + r * Math.sin(angle) / (window.innerHeight / 800))
         )
     }
 
@@ -63,10 +63,10 @@ function main() {
 
     for (var i = 0; i < bacteria.length; i++) {
         bacteria[i] = new Array(4);
-        bacteria[i][0]=0;//x
-        bacteria[i][1]=0;//y
-        bacteria[i][2]=0.1;//r
-        bacteria[i][3]= new Array();
+        bacteria[i][0] = 0;//x
+        bacteria[i][1] = 0;//y
+        bacteria[i][2] = 0.1;//r
+        bacteria[i][3] = new Array();
         updateBacteria(bacteria[i]);
     }
 
@@ -166,17 +166,17 @@ function main() {
     }
 }
 
-function updateBacteria(bact){
-    var totalPoints=100;
-    bact[2]+=0.01;
-    var raduis=bact[2];
-    for (i = 0; i < totalPoints*2; i+=2) {
+function updateBacteria(bact) {
+    var totalPoints = 100;
+    bact[2] += 0.01;
+    var raduis = bact[2];
+    for (i = 0; i < totalPoints * 2; i += 2) {
         const angle = 2 * Math.PI * i / totalPoints;
-        bact[3][i]=(
-            (0 + raduis * Math.cos(angle)/(window.innerWidth/800))
+        bact[3][i] = (
+            (0 + raduis * Math.cos(angle) / (window.innerWidth / 800))
         )
-        bact[3][i+1]=(
-            (0 + raduis * Math.sin(angle)/(window.innerHeight/800))
+        bact[3][i + 1] = (
+            (0 + raduis * Math.sin(angle) / (window.innerHeight / 800))
         )
     }
 }
@@ -184,6 +184,7 @@ function updateBacteria(bact){
 var vertexShaderText = `
 precision mediump float;
 
+attribute vec4 canvasSize;
 attribute vec2 vertPosition;
 uniform vec2 motion;
 
@@ -198,8 +199,19 @@ precision mediump float;
 
 varying vec3 fragColor;
 
+float circle(in vec2 _st, in float _radius){
+    vec2 dist = _st-vec2(0.5);
+	return 1.-smoothstep(_radius-(_radius*0.01),
+                         _radius+(_radius*0.01),
+                         dot(dist,dist)*4.0);
+}
+
 void main(){
-    gl_FragColor = vec4(1, 0, 0, 0);
+	vec2 st = gl_FragCoord.xy/u_resolution.xy;
+
+	vec3 color = vec3(circle(st,0.9));
+
+	gl_FragColor = vec4( color, 1.0 );
 }
 `;
 
